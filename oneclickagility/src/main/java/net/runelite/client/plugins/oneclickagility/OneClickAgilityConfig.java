@@ -82,4 +82,11 @@ public interface OneClickAgilityConfig extends Config
     {
         return true;
     }
+    @ConfigItem(
+            position = 6,
+            keyName = "pickUpCoins",
+            name = "Golden Brick Road",
+            description = "Pick up coins from Golden Brick Road"
+    )
+    default boolean pickUpCoins() {return  false;}
 }
