@@ -82,6 +82,9 @@ public class OneClickAgilityPlugin extends Plugin
     }
 
     private static final int MARK_ID = 11849;
+    private static final int COINS_ID = 995;
+    private static final int SHATTERED_RELIC_FRAGMENT = 13395;
+    private static final int GOLDEN_BRICK_ROAD_VARBIT_TRUE = 45;
     private static final int HIGH_ALCH_GRAPHIC = 113;
     private static final Set<Integer> PORTAL_IDS = Set.of(36241,36242,36243,36244,36245,36246);
     private static final Set<Integer> SUMMER_PIE_ID = Set.of(7220,7218);
@@ -90,6 +93,7 @@ public class OneClickAgilityPlugin extends Plugin
     private static final WorldPoint PYRAMID_TOP_LEFT = new WorldPoint(3042,4697,3);
 
     ArrayList<Tile> marks = new ArrayList<>();
+    ArrayList<Tile> coins = new ArrayList<>();
     ArrayList<GameObject> portals = new ArrayList<>();
     DecorativeObject pyramidTopObstacle;
     GameObject pyramidTop;
@@ -270,6 +274,10 @@ public class OneClickAgilityPlugin extends Plugin
         {
             marks.add(event.getTile());
         }
+        if (event.getItem().getId() == COINS_ID)
+        {
+            coins.add(event.getTile());
+        }
     }
 
     @Subscribe
@@ -278,6 +286,10 @@ public class OneClickAgilityPlugin extends Plugin
         if (event.getItem().getId() == MARK_ID)
         {
             marks.remove(event.getTile());
+        }
+        if (event.getItem().getId() == COINS_ID)
+        {
+            coins.remove(event.getTile());
         }
     }
 
@@ -357,6 +369,27 @@ public class OneClickAgilityPlugin extends Plugin
                     }
                 }
             }
+            if(client.getVarbitValue(SHATTERED_RELIC_FRAGMENT) == GOLDEN_BRICK_ROAD_VARBIT_TRUE) //checks for golden brick road fragment in shattered relics
+            {
+                Tile wrongCoinTile = null;
+                for (Tile coin : coins)
+                {
+                    if(obstacleArea.containsObject(coin))
+                    {
+                        Tile coinTile = client.getScene().getTiles()[coin.getPlane()][coin.getSceneLocation().getX()][coin.getSceneLocation().getY()];
+
+                        if (coinTile != null && checkTileForCoin(coinTile))
+                        {
+                            event.setMenuEntry(createCoinMenuEntry(coin));
+                            return;
+                        }
+                        else
+                        {
+                            wrongCoinTile = coin;
+                        }
+                    }
+                }
+            }
 
             if(wrongMarkTile != null)
             {
@@ -412,6 +445,27 @@ public class OneClickAgilityPlugin extends Plugin
                 continue;
 
             if(item.getId() == MARK_ID)
+                return true;
+        }
+        log.info("no matching item found");
+        return false;
+    }
+
+    private boolean checkTileForCoin(Tile tile)
+    {
+        List<TileItem> items = tile.getGroundItems();
+        if (items == null)
+        {
+            log.info("no item found");
+            return false;
+        }
+
+        for (TileItem item:items)
+        {
+            if (item == null)
+                continue;
+
+            if(item.getId() == COINS_ID)
                 return true;
         }
         log.info("no matching item found");
@@ -479,6 +533,17 @@ public class OneClickAgilityPlugin extends Plugin
         return client.createMenuEntry("Take",
                 "Mark of Grace",
                 MARK_ID,
+                MenuAction.GROUND_ITEM_THIRD_OPTION.getId(),
+                tile.getSceneLocation().getX(),
+                tile.getSceneLocation().getY(),
+                true);
+    }
+
+    private MenuEntry createCoinMenuEntry(Tile tile)
+    {
+        return client.createMenuEntry("Take",
+                "Coins",
+                COINS_ID,
                 MenuAction.GROUND_ITEM_THIRD_OPTION.getId(),
                 tile.getSceneLocation().getX(),
                 tile.getSceneLocation().getY(),
