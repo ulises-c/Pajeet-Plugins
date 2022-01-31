@@ -82,6 +82,7 @@ public interface OneClickAgilityConfig extends Config
     {
         return true;
     }
+    
     @ConfigItem(
             position = 6,
             keyName = "pickUpCoins",
