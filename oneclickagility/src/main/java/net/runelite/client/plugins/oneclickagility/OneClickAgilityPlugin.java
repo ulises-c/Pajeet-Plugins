@@ -369,31 +369,36 @@ public class OneClickAgilityPlugin extends Plugin
                     }
                 }
             }
-            if(client.getVarbitValue(SHATTERED_RELIC_FRAGMENT) == GOLDEN_BRICK_ROAD_VARBIT_TRUE) //checks for golden brick road fragment in shattered relics
-            {
-                Tile wrongCoinTile = null;
-                for (Tile coin : coins)
-                {
-                    if(obstacleArea.containsObject(coin))
-                    {
-                        Tile coinTile = client.getScene().getTiles()[coin.getPlane()][coin.getSceneLocation().getX()][coin.getSceneLocation().getY()];
-
-                        if (coinTile != null && checkTileForCoin(coinTile))
-                        {
-                            event.setMenuEntry(createCoinMenuEntry(coin));
-                            return;
-                        }
-                        else
-                        {
-                            wrongCoinTile = coin;
-                        }
-                    }
-                }
-            }
 
             if(wrongMarkTile != null)
             {
                 marks.remove(wrongMarkTile);
+            }
+        }
+
+        if((config.pickUpCoins() || client.getVarbitValue(SHATTERED_RELIC_FRAGMENT) == GOLDEN_BRICK_ROAD_VARBIT_TRUE) && !coins.isEmpty()) // checking config or varbit value
+        {
+            Tile wrongCoinTile = null;
+            for (Tile coin : coins)
+            {
+                if (obstacleArea.containsObject(coin))
+                {
+                    Tile coinTile = client.getScene().getTiles()[coin.getPlane()][coin.getSceneLocation().getX()][coin.getSceneLocation().getY()];
+
+                    if(coinTile != null && checkTileForCoin(coinTile))
+                    {
+                        event.setMenuEntry(createCoinMenuEntry(coin));
+                        return;
+                    }
+                    else
+                    {
+                        wrongCoinTile = coin;
+                    }
+                }
+            }
+            if(wrongCoinTile != null)
+            {
+                coins.remove(wrongCoinTile);
             }
         }
 
